@@ -1,0 +1,45 @@
+import Foundation
+import FoundationNetworking
+
+struct Product: Decodable {
+    let id: Int
+    let name: String
+    let description: String
+    let price: Double
+    let currency: String
+    let in_stock: Bool
+}
+
+struct ProductsResponse: Decodable {
+    let products: [Product]
+}
+
+let apiURL = URL(string: "https://jsonkeeper.com/b/MX0A")!
+
+let task = URLSession.shared.dataTask(with: apiURL) { data, response, error in
+    if let error = error {
+        print("Error de conexión: \(error.localizedDescription)")
+        return
+    }
+
+    guard let data = data else {
+        print("La API no devolvió información.")
+        return
+    }
+
+    do {
+        let result = try JSONDecoder().decode(ProductsResponse.self, from: data)
+
+        print("LISTADO DE PRODUCTOS")
+        print("--------------------")
+
+        for product in result.products {
+            print("\(product.name) - \(product.price) \(product.currency)")
+        }
+    } catch {
+        print("Error al leer los productos: \(error)")
+    }
+}
+
+task.resume()
+RunLoop.main.run()
